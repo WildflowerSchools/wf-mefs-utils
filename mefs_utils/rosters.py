@@ -118,7 +118,7 @@ def create_roster_and_write_locally(
         )
     )
     old_mefs_ids = pd.read_pickle(mefs_ids_filename)
-    mefs_roster_data, new_mefs_ids = wf_core_data.create_roster(
+    mefs_roster_data, new_mefs_ids = create_roster(
         master_roster_data=master_roster_data,
         mefs_ids=old_mefs_ids
     )
