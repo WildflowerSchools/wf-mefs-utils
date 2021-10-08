@@ -1,4 +1,4 @@
-import wf_core_data.rosters.shared_constants
+import wf_core_data
 import pandas as pd
 import uuid
 import os
@@ -79,7 +79,7 @@ MEFS_TESTABLE_GRADES = [
     '12'
 ]
 
-def create_mefs_roster_and_write_locally(
+def create_roster_and_write_locally(
     base_directory,
     filename_suffix,
     master_roster_subdirectory='master_rosters',
@@ -118,11 +118,11 @@ def create_mefs_roster_and_write_locally(
         )
     )
     old_mefs_ids = pd.read_pickle(mefs_ids_filename)
-    mefs_roster_data, new_mefs_ids = wf_core_data.create_mefs_roster(
+    mefs_roster_data, new_mefs_ids = wf_core_data.create_roster(
         master_roster_data=master_roster_data,
         mefs_ids=old_mefs_ids
     )
-    write_mefs_rosters_local(
+    write_rosters_local(
         mefs_roster_data=mefs_roster_data,
         base_directory=base_directory,
         subdirectory=mefs_roster_subdirectory,
@@ -138,7 +138,7 @@ def create_mefs_roster_and_write_locally(
     )
 
 
-def create_mefs_roster(
+def create_roster(
     master_roster_data,
     mefs_ids
 ):
@@ -271,7 +271,7 @@ def create_mefs_roster(
     )
     return mefs_roster_data, new_mefs_ids
 
-def write_mefs_rosters_local(
+def write_rosters_local(
     mefs_roster_data,
     base_directory,
     subdirectory='mefs_rosters',
