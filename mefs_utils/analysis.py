@@ -276,148 +276,150 @@ def summarize_by_test(
         )
     return tests
 
-# def summarize_by_student(
-#     test_events,
-#     student_info,
-#     student_assignments,
-#     new_time_index=['school_year'],
-#     min_growth_days=DEFAULT_MIN_GROWTH_DAYS,
-#     school_year_duration_months=DEFAULT_SCHOOL_YEAR_DURATION_MONTHS,
-#     filter_dict=None,
-#     select_dict=None
-# ):
-#     new_index_variables = list(itertools.chain(
-#         new_time_index,
-#         ASSESSMENT_ID_VARIABLES,
-#         STUDENT_ID_VARIABLES
-#     ))
-#     unstack_variables = copy.deepcopy(TIME_FRAME_ID_VARIABLES)
-#     for new_time_index_variable in new_time_index:
-#         unstack_variables.remove(new_time_index_variable)
-#     students = (
-#         test_events
-#         .unstack(unstack_variables)
-#     )
-#     students.columns = ['_'.join([inflection.underscore(variable_name) for variable_name in x]) for x in students.columns]
-#     underlying_data_columns = list(students.columns)
-#     rit_scores = (
-#         test_events
-#         .dropna(subset=['rit_score'])
-#         .sort_values('test_date')
-#         .groupby(new_index_variables)
-#         .agg(
-#             rit_score_starting_date=('test_date', lambda x: x.dropna().iloc[0]),
-#             rit_score_ending_date=('test_date', lambda x: x.dropna().iloc[-1]),
-#             starting_rit_score=('rit_score', lambda x: x.dropna().iloc[0]),
-#             ending_rit_score=('rit_score', lambda x: x.dropna().iloc[-1]),
-#         )
-#     )
-#     percentiles = (
-#         test_events
-#         .dropna(subset=['percentile'])
-#         .sort_values('test_date')
-#         .groupby(new_index_variables)
-#         .agg(
-#             percentile_starting_date=('test_date', lambda x: x.dropna().iloc[0]),
-#             percentile_ending_date=('test_date', lambda x: x.dropna().iloc[-1]),
-#             starting_percentile=('percentile', lambda x: x.dropna().iloc[0]),
-#             ending_percentile=('percentile', lambda x: x.dropna().iloc[-1]),
-#         )
-#     )
-#     students = (
-#         students
-#         .join(
-#             rit_scores,
-#             how='left'
-#         )
-#         .join(
-#             percentiles,
-#             how='left'
-#         )
-#     )
-#     students['rit_score_num_days'] = (
-#         np.subtract(
-#             students['rit_score_ending_date'],
-#             students['rit_score_starting_date']
-#         )
-#         .apply(lambda x: x.days)
-#     )
-#     students['rit_score_growth'] = np.subtract(
-#         students['ending_rit_score'],
-#         students['starting_rit_score']
-#     )
-#     students.loc[students['rit_score_num_days'] < min_growth_days, 'rit_score_growth'] = np.nan
-#     students['rit_score_growth_per_school_year'] = 365.25*(school_year_duration_months/12)*students['rit_score_growth']/students['rit_score_num_days']
-#     students['percentile_num_days'] = (
-#         np.subtract(
-#             students['percentile_ending_date'],
-#             students['percentile_starting_date']
-#         )
-#         .apply(lambda x: x.days)
-#     )
-#     students['percentile_growth'] = np.subtract(
-#         students['ending_percentile'],
-#         students['starting_percentile']
-#     )
-#     students.loc[students['percentile_num_days'] < min_growth_days, 'percentile_growth'] = np.nan
-#     students['percentile_growth_per_school_year'] = 365.25*(school_year_duration_months/12)*students['percentile_growth']/students['percentile_num_days']
-#     students = students.join(
-#         student_info,
-#         how='left',
-#         on=['legal_entity', 'student_id_nwea']
-#     )
-#     latest_student_assignments = (
-#         student_assignments
-#         .reset_index()
-#         .sort_values(['school_year', 'term'])
-#         .groupby(list(itertools.chain(
-#             STUDENT_ID_VARIABLES,
-#             new_time_index
-#         )))
-#         .tail(1)
-#         .set_index(list(itertools.chain(
-#             STUDENT_ID_VARIABLES,
-#             new_time_index
-#         )))
-#     )
-#     students = students.join(
-#         latest_student_assignments,
-#         how='left',
-#         on=latest_student_assignments.index.names
-#     )
-#     students = students.reindex(columns=list(itertools.chain(
-#         STUDENT_INFO_VARIABLES,
-#         STUDENT_ASSIGNMENT_VARIABLES,
-#         underlying_data_columns,
-#         [
-#             'rit_score_starting_date',
-#             'rit_score_ending_date',
-#             'rit_score_num_days',
-#             'starting_rit_score',
-#             'ending_rit_score',
-#             'rit_score_growth',
-#             'rit_score_growth_per_school_year',
-#             'percentile_starting_date',
-#             'percentile_ending_date',
-#             'percentile_num_days',
-#             'starting_percentile',
-#             'ending_percentile',
-#             'percentile_growth',
-#             'percentile_growth_per_school_year',
-#         ]
-#     )))
-#     if filter_dict is not None:
-#         students = wf_core_data.utils.filter_dataframe(
-#             dataframe=students,
-#             filter_dict=filter_dict
-#         )
-#     if select_dict is not None:
-#         students = wf_core_data.utils.select_from_dataframe(
-#             dataframe=students,
-#             select_dict=select_dict
-#         )
-#     return students
-#
+def summarize_by_student(
+    test_events,
+    student_info,
+    student_assignments,
+    new_time_index=['school_year'],
+    min_growth_days=DEFAULT_MIN_GROWTH_DAYS,
+    school_year_duration_months=DEFAULT_SCHOOL_YEAR_DURATION_MONTHS,
+    filter_dict=None,
+    select_dict=None
+):
+    new_index_variables = list(itertools.chain(
+        new_time_index,
+        STUDENT_ID_VARIABLES
+    ))
+    # unstack_variables = copy.deepcopy(TIME_FRAME_ID_VARIABLES)
+    # for new_time_index_variable in new_time_index:
+    #     unstack_variables.remove(new_time_index_variable)
+    # students = (
+    #     test_events
+    #     .unstack(unstack_variables)
+    # )
+    # students.columns = ['_'.join([inflection.underscore(variable_name) for variable_name in x]) for x in students.columns]
+    # underlying_data_columns = list(students.columns)
+    total_scores = (
+        test_events
+        .dropna(subset=['total_score'])
+        .sort_values('test_date')
+        .groupby(new_index_variables)
+        .agg(
+            total_score_starting_date=('test_date', lambda x: x.dropna().iloc[0]),
+            total_score_ending_date=('test_date', lambda x: x.dropna().iloc[-1]),
+            starting_total_score=('total_score', lambda x: x.dropna().iloc[0]),
+            ending_total_score=('total_score', lambda x: x.dropna().iloc[-1]),
+        )
+    )
+    percentiles = (
+        test_events
+        .dropna(subset=['percentile'])
+        .sort_values('test_date')
+        .groupby(new_index_variables)
+        .agg(
+            percentile_starting_date=('test_date', lambda x: x.dropna().iloc[0]),
+            percentile_ending_date=('test_date', lambda x: x.dropna().iloc[-1]),
+            starting_percentile=('percentile', lambda x: x.dropna().iloc[0]),
+            ending_percentile=('percentile', lambda x: x.dropna().iloc[-1]),
+        )
+    )
+    students = total_scores.join(
+        percentiles,
+        how='outer'
+    )
+    # students = (
+    #     students
+    #     .join(
+    #         total_scores,
+    #         how='left'
+    #     )
+    #     .join(
+    #         percentiles,
+    #         how='left'
+    #     )
+    # )
+    students['total_score_num_days'] = (
+        np.subtract(
+            students['total_score_ending_date'],
+            students['total_score_starting_date']
+        )
+        .apply(lambda x: x.days)
+    )
+    students['total_score_growth'] = np.subtract(
+        students['ending_total_score'],
+        students['starting_total_score']
+    )
+    students.loc[students['total_score_num_days'] < min_growth_days, 'total_score_growth'] = np.nan
+    students['total_score_growth_per_school_year'] = 365.25*(school_year_duration_months/12)*students['total_score_growth']/students['total_score_num_days']
+    students['percentile_num_days'] = (
+        np.subtract(
+            students['percentile_ending_date'],
+            students['percentile_starting_date']
+        )
+        .apply(lambda x: x.days)
+    )
+    students['percentile_growth'] = np.subtract(
+        students['ending_percentile'],
+        students['starting_percentile']
+    )
+    students.loc[students['percentile_num_days'] < min_growth_days, 'percentile_growth'] = np.nan
+    students['percentile_growth_per_school_year'] = 365.25*(school_year_duration_months/12)*students['percentile_growth']/students['percentile_num_days']
+    students = students.join(
+        student_info,
+        how='left',
+        on=['rs_id']
+    )
+    latest_student_assignments = (
+        student_assignments
+        .reset_index()
+        .sort_values(['school_year'])
+        .groupby(list(itertools.chain(
+            STUDENT_ID_VARIABLES,
+            new_time_index
+        )))
+        .tail(1)
+        .set_index(list(itertools.chain(
+            STUDENT_ID_VARIABLES,
+            new_time_index
+        )))
+    )
+    students = students.join(
+        latest_student_assignments,
+        how='left',
+        on=latest_student_assignments.index.names
+    )
+    students = students.reindex(columns=list(itertools.chain(
+        STUDENT_INFO_VARIABLES,
+        STUDENT_ASSIGNMENT_VARIABLES,
+        [
+            'total_score_starting_date',
+            'total_score_ending_date',
+            'total_score_num_days',
+            'starting_total_score',
+            'ending_total_score',
+            'total_score_growth',
+            'total_score_growth_per_school_year',
+            'percentile_starting_date',
+            'percentile_ending_date',
+            'percentile_num_days',
+            'starting_percentile',
+            'ending_percentile',
+            'percentile_growth',
+            'percentile_growth_per_school_year',
+        ]
+    )))
+    if filter_dict is not None:
+        students = wf_core_data.utils.filter_dataframe(
+            dataframe=students,
+            filter_dict=filter_dict
+        )
+    if select_dict is not None:
+        students = wf_core_data.utils.select_from_dataframe(
+            dataframe=students,
+            select_dict=select_dict
+        )
+    return students
+
 # def summarize_by_group(
 #     students,
 #     grouping_variables=[
