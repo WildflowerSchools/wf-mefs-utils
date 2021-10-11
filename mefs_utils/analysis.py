@@ -420,58 +420,56 @@ def summarize_by_student(
         )
     return students
 
-# def summarize_by_group(
-#     students,
-#     grouping_variables=[
-#         'school_year',
-#         'legal_entity',
-#         'subject',
-#         'course'
-#     ],
-#     filter_dict=None,
-#     select_dict=None
-# ):
-#     groups = (
-#         students
-#         .reset_index()
-#         .groupby(grouping_variables)
-#         .agg(
-#             num_test_results=('student_id_nwea', 'count'),
-#             num_valid_rit_score_growth=('rit_score_growth', 'count'),
-#             mean_rit_score_growth=('rit_score_growth', 'mean'),
-#             mean_rit_score_growth_per_school_year=('rit_score_growth_per_school_year', 'mean'),
-#             num_valid_starting_percentile=('starting_percentile', 'count'),
-#             mean_starting_percentile=('starting_percentile', 'mean'),
-#             num_valid_ending_percentile=('ending_percentile', 'count'),
-#             mean_ending_percentile=('ending_percentile', 'mean'),
-#             num_valid_percentile_growth=('percentile_growth', 'count'),
-#             mean_percentile_growth=('percentile_growth', 'mean'),
-#             mean_percentile_growth_per_school_year=('percentile_growth_per_school_year', 'mean')
-#         )
-#         .dropna(how='all')
-#     )
-#     groups = groups.loc[groups['num_test_results'] > 0].copy()
-#     groups = groups.reindex(columns=[
-#         'num_test_results',
-#         'num_valid_rit_score_growth',
-#         'mean_rit_score_growth',
-#         'mean_rit_score_growth_per_school_year',
-#         'num_valid_starting_percentile',
-#         'mean_starting_percentile',
-#         'num_valid_ending_percentile',
-#         'mean_ending_percentile',
-#         'num_valid_percentile_growth',
-#         'mean_percentile_growth',
-#         'mean_percentile_growth_per_school_year'
-#     ])
-#     if filter_dict is not None:
-#         groups = wf_core_data.utils.filter_dataframe(
-#             dataframe=groups,
-#             filter_dict=filter_dict
-#         )
-#     if select_dict is not None:
-#         groups = wf_core_data.utils.select_from_dataframe(
-#             dataframe=groups,
-#             select_dict=select_dict
-#         )
-#     return groups
+def summarize_by_group(
+    students,
+    grouping_variables=[
+        'school_year',
+        'group_name_mefs'
+    ],
+    filter_dict=None,
+    select_dict=None
+):
+    groups = (
+        students
+        .reset_index()
+        .groupby(grouping_variables)
+        .agg(
+            num_test_results=('rs_id', 'count'),
+            num_valid_total_score_growth=('total_score_growth', 'count'),
+            mean_total_score_growth=('total_score_growth', 'mean'),
+            mean_total_score_growth_per_school_year=('total_score_growth_per_school_year', 'mean'),
+            num_valid_starting_percentile=('starting_percentile', 'count'),
+            mean_starting_percentile=('starting_percentile', 'mean'),
+            num_valid_ending_percentile=('ending_percentile', 'count'),
+            mean_ending_percentile=('ending_percentile', 'mean'),
+            num_valid_percentile_growth=('percentile_growth', 'count'),
+            mean_percentile_growth=('percentile_growth', 'mean'),
+            mean_percentile_growth_per_school_year=('percentile_growth_per_school_year', 'mean')
+        )
+        .dropna(how='all')
+    )
+    groups = groups.loc[groups['num_test_results'] > 0].copy()
+    groups = groups.reindex(columns=[
+        'num_test_results',
+        'num_valid_total_score_growth',
+        'mean_total_score_growth',
+        'mean_total_score_growth_per_school_year',
+        'num_valid_starting_percentile',
+        'mean_starting_percentile',
+        'num_valid_ending_percentile',
+        'mean_ending_percentile',
+        'num_valid_percentile_growth',
+        'mean_percentile_growth',
+        'mean_percentile_growth_per_school_year'
+    ])
+    if filter_dict is not None:
+        groups = wf_core_data.utils.filter_dataframe(
+            dataframe=groups,
+            filter_dict=filter_dict
+        )
+    if select_dict is not None:
+        groups = wf_core_data.utils.select_from_dataframe(
+            dataframe=groups,
+            select_dict=select_dict
+        )
+    return groups
