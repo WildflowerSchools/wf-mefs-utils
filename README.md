@@ -7,7 +7,6 @@ Tools for working with MEFS/EFgo assessments data
 `pip install wf-mefs-utils`
 
 ## Tasks
-* [Go back and fix up student info grouping in student info changes for NWEA, FastBridge]
 * Gather up shared functions and definitions across assessments and move to `wf-core-data-python` (or somewhere)
 * Find places where functions/methods can be reused across assessment with the addition of some arguments/switches
 * Fix up README on PyPI by declaring long description to be markdown
