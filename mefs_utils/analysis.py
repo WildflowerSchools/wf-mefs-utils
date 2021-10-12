@@ -31,11 +31,6 @@ STUDENT_ASSIGNMENT_VARIABLES = [
     'group_name_mefs'
 ]
 
-# ASSESSMENT_ID_VARIABLES = [
-#     'subject',
-#     'course'
-# ]
-
 RESULTS_VARIABLES = [
     'test_date',
     'total_score',
@@ -43,27 +38,6 @@ RESULTS_VARIABLES = [
     'standard_score_category',
     'percentile'
 ]
-
-# TERMS = (
-#     'Fall',
-#     'Winter',
-#     'Spring'
-# )
-
-# ASSESSMENTS = collections.OrderedDict((
-#     ('Language Arts', [
-#         'Reading',
-#         'Reading (Spanish)',
-#         'Language Usage'
-#     ]),
-#     ('Mathematics', [
-#         'Math K-12'
-#     ])
-# ))
-#
-# SUBJECTS = list(ASSESSMENTS.keys())
-#
-# COURSES=list(itertools.chain(*ASSESSMENTS.values()))
 
 DEFAULT_MIN_GROWTH_DAYS = 60
 
@@ -290,15 +264,6 @@ def summarize_by_student(
         new_time_index,
         STUDENT_ID_VARIABLES
     ))
-    # unstack_variables = copy.deepcopy(TIME_FRAME_ID_VARIABLES)
-    # for new_time_index_variable in new_time_index:
-    #     unstack_variables.remove(new_time_index_variable)
-    # students = (
-    #     test_events
-    #     .unstack(unstack_variables)
-    # )
-    # students.columns = ['_'.join([inflection.underscore(variable_name) for variable_name in x]) for x in students.columns]
-    # underlying_data_columns = list(students.columns)
     total_scores = (
         test_events
         .dropna(subset=['total_score'])
@@ -327,17 +292,6 @@ def summarize_by_student(
         percentiles,
         how='outer'
     )
-    # students = (
-    #     students
-    #     .join(
-    #         total_scores,
-    #         how='left'
-    #     )
-    #     .join(
-    #         percentiles,
-    #         how='left'
-    #     )
-    # )
     students['total_score_num_days'] = (
         np.subtract(
             students['total_score_ending_date'],
