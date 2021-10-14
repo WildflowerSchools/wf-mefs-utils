@@ -389,32 +389,56 @@ def summarize_by_group(
         .groupby(grouping_variables)
         .agg(
             num_test_results=('rs_id', 'count'),
+            num_valid_starting_total_score=('starting_total_score', 'count'),
+            mean_starting_total_score=('starting_total_score', 'mean'),
+            starting_total_score_sd=('starting_total_score', 'std'),
+            num_valid_ending_total_score=('ending_total_score', 'count'),
+            mean_ending_total_score=('ending_total_score', 'mean'),
+            ending_total_score_sd=('ending_total_score', 'std'),
             num_valid_total_score_growth=('total_score_growth', 'count'),
             mean_total_score_growth=('total_score_growth', 'mean'),
+            total_score_growth_sd=('total_score_growth', 'std'),
             mean_total_score_growth_per_school_year=('total_score_growth_per_school_year', 'mean'),
+            total_score_growth_per_school_year_sd=('total_score_growth_per_school_year', 'std'),
             num_valid_starting_percentile=('starting_percentile', 'count'),
             mean_starting_percentile=('starting_percentile', 'mean'),
+            starting_percentile_sd=('starting_percentile', 'std'),
             num_valid_ending_percentile=('ending_percentile', 'count'),
             mean_ending_percentile=('ending_percentile', 'mean'),
+            ending_percentile_sd=('ending_percentile', 'std'),
             num_valid_percentile_growth=('percentile_growth', 'count'),
             mean_percentile_growth=('percentile_growth', 'mean'),
-            mean_percentile_growth_per_school_year=('percentile_growth_per_school_year', 'mean')
+            percentile_growth_sd=('percentile_growth', 'std'),
+            mean_percentile_growth_per_school_year=('percentile_growth_per_school_year', 'mean'),
+            percentile_growth_per_school_year_sd=('percentile_growth_per_school_year', 'std')
         )
         .dropna(how='all')
     )
     groups = groups.loc[groups['num_test_results'] > 0].copy()
     groups = groups.reindex(columns=[
         'num_test_results',
+        'num_valid_starting_total_score',
+        'mean_starting_total_score',
+        'starting_total_score_sd',
+        'num_valid_ending_total_score',
+        'mean_ending_total_score',
+        'ending_total_score_sd',
         'num_valid_total_score_growth',
         'mean_total_score_growth',
+        'total_score_growth_sd',
         'mean_total_score_growth_per_school_year',
+        'total_score_growth_per_school_year_sd',
         'num_valid_starting_percentile',
         'mean_starting_percentile',
+        'starting_percentile_sd',
         'num_valid_ending_percentile',
         'mean_ending_percentile',
+        'ending_percentile_sd',
         'num_valid_percentile_growth',
         'mean_percentile_growth',
-        'mean_percentile_growth_per_school_year'
+        'percentile_growth_sd',
+        'mean_percentile_growth_per_school_year',
+        'percentile_growth_per_school_year_sd'
     ])
     if filter_dict is not None:
         groups = wf_core_data.utils.filter_dataframe(

@@ -6,6 +6,7 @@ VERSION = open(os.path.join(BASEDIR, 'VERSION')).read().strip()
 
 # Dependencies (format is 'PYPI_PACKAGE_NAME[>]=VERSION_NUMBER')
 BASE_DEPENDENCIES = [
+    'wf-core-data-python>=1.3.0',
     'pandas>=1.3',
     'numpy>=1.19'
 ]
