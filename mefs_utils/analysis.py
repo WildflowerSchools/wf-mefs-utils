@@ -383,6 +383,8 @@ def summarize_by_group(
     filter_dict=None,
     select_dict=None
 ):
+    if len(grouping_variables) == 0:
+        grouping_variables = lambda x: 0
     groups = (
         students
         .reset_index()
