@@ -323,6 +323,9 @@ def summarize_by_student(
         how='left',
         on=['rs_id']
     )
+    students['met_goal'] = students['ending_percentile'].apply(
+        lambda x: (x >= 50) if not pd.isna(x) else None
+    )
     latest_student_assignments = (
         student_assignments
         .reset_index()
@@ -360,6 +363,7 @@ def summarize_by_student(
             'ending_percentile',
             'percentile_growth',
             'percentile_growth_per_school_year',
+            'met_goal'
         ]
     )))
     if filter_dict is not None:
@@ -412,11 +416,14 @@ def summarize_by_group(
             mean_percentile_growth=('percentile_growth', 'mean'),
             percentile_growth_sd=('percentile_growth', 'std'),
             mean_percentile_growth_per_school_year=('percentile_growth_per_school_year', 'mean'),
-            percentile_growth_per_school_year_sd=('percentile_growth_per_school_year', 'std')
+            percentile_growth_per_school_year_sd=('percentile_growth_per_school_year', 'std'),
+            num_valid_goal_info=('ending_percentile', 'count'),
+            num_met_goal=('met_goal', 'sum')
         )
         .dropna(how='all')
     )
     groups = groups.loc[groups['num_test_results'] > 0].copy()
+    groups['frac_met_goal'] = groups['num_met_goal'].astype('float')/groups['num_valid_goal_info'].astype('float')
     groups = groups.reindex(columns=[
         'num_test_results',
         'num_valid_starting_total_score',
@@ -440,7 +447,9 @@ def summarize_by_group(
         'mean_percentile_growth',
         'percentile_growth_sd',
         'mean_percentile_growth_per_school_year',
-        'percentile_growth_per_school_year_sd'
+        'percentile_growth_per_school_year_sd',
+        'num_valid_goal_info',
+        'frac_met_goal'
     ])
     if filter_dict is not None:
         groups = wf_core_data.utils.filter_dataframe(
