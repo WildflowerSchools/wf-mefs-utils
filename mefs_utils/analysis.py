@@ -424,30 +424,70 @@ def summarize_by_group(
     )
     groups = groups.loc[groups['num_test_results'] > 0].copy()
     groups['frac_met_goal'] = groups['num_met_goal'].astype('float')/groups['num_valid_goal_info'].astype('float')
+    groups['mean_starting_total_score_sem'] = np.divide(
+        groups['starting_total_score_sd'],
+        np.sqrt(groups['num_valid_starting_total_score'])
+    )
+    groups['mean_ending_total_score_sem'] = np.divide(
+        groups['ending_total_score_sd'],
+        np.sqrt(groups['num_valid_ending_total_score'])
+    )
+    groups['mean_total_score_growth_sem'] = np.divide(
+        groups['total_score_growth_sd'],
+        np.sqrt(groups['num_valid_total_score_growth'])
+    )
+    groups['mean_total_score_growth_per_school_year_sem'] = np.divide(
+        groups['total_score_growth_per_school_year_sd'],
+        np.sqrt(groups['num_valid_total_score_growth'])
+    )
+    groups['mean_starting_percentile_sem'] = np.divide(
+        groups['starting_percentile_sd'],
+        np.sqrt(groups['num_valid_starting_percentile'])
+    )
+    groups['mean_ending_percentile_sem'] = np.divide(
+        groups['ending_percentile_sd'],
+        np.sqrt(groups['num_valid_ending_percentile'])
+    )
+    groups['mean_percentile_growth_sem'] = np.divide(
+        groups['percentile_growth_sd'],
+        np.sqrt(groups['num_valid_percentile_growth'])
+    )
+    groups['mean_percentile_growth_per_school_year_sem'] = np.divide(
+        groups['percentile_growth_per_school_year_sd'],
+        np.sqrt(groups['num_valid_percentile_growth'])
+    )
     groups = groups.reindex(columns=[
         'num_test_results',
         'num_valid_starting_total_score',
         'mean_starting_total_score',
         'starting_total_score_sd',
+        'mean_starting_total_score_sem',
         'num_valid_ending_total_score',
         'mean_ending_total_score',
         'ending_total_score_sd',
+        'mean_ending_total_score_sem',
         'num_valid_total_score_growth',
         'mean_total_score_growth',
         'total_score_growth_sd',
+        'mean_total_score_growth_sem',
         'mean_total_score_growth_per_school_year',
         'total_score_growth_per_school_year_sd',
+        'mean_total_score_growth_per_school_year_sem',
         'num_valid_starting_percentile',
         'mean_starting_percentile',
         'starting_percentile_sd',
+        'mean_starting_percentile_sem',
         'num_valid_ending_percentile',
         'mean_ending_percentile',
         'ending_percentile_sd',
+        'mean_ending_percentile_sem',
         'num_valid_percentile_growth',
         'mean_percentile_growth',
         'percentile_growth_sd',
+        'mean_percentile_growth_sem',
         'mean_percentile_growth_per_school_year',
         'percentile_growth_per_school_year_sd',
+        'mean_percentile_growth_per_school_year_sem',
         'num_valid_goal_info',
         'frac_met_goal'
     ])
