@@ -182,15 +182,13 @@ def create_roster(
             {'student_id_mefs_wf': [str(uuid.uuid4())[-10:] for _ in range(num_additional_mefs_ids)]},
             index=new_tc_ids
         )
-        new_mefs_id_map = pd.concat((
-            mefs_id_map,
-            additional_mefs_id_map
-        ))
-        if not new_mefs_id_map['student_id_mefs_wf'].duplicated().any():
+        if len(set(additional_mefs_id_map['student_id_mefs_wf']).intersection(mefs_id_map['student_id_mefs_wf'])) == 0:
+            new_mefs_id_map = pd.concat((
+                mefs_id_map,
+                additional_mefs_id_map
+            ))
             break
-        logger.info('New MEFS ID list contains {} duplicates. Regenerating.'.format(
-            new_mefs_id_map['student_id_mefs_wf'].duplicated().sum()
-        ))
+        logger.info('New MEFS ID list contains duplicates with existing IDs. Regenerating.')
     mefs_roster_data = (
         mefs_roster_data
         .join(
