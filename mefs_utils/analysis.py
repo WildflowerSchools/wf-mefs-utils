@@ -384,11 +384,12 @@ def summarize_by_group(
         'school_year',
         'group_name_mefs'
     ],
+    overall_group_name='National',
     filter_dict=None,
     select_dict=None
 ):
     if len(grouping_variables) == 0:
-        grouping_variables = lambda x: 0
+        grouping_variables = lambda x: overall_group_name
     groups = (
         students
         .reset_index()
@@ -502,3 +503,192 @@ def summarize_by_group(
             select_dict=select_dict
         )
     return groups
+
+def format_group_summary(
+    groups,
+    index_names=None
+):
+    groups_formatted = groups.copy()
+    groups_formatted['ending_total_score_error_range'] = groups_formatted.apply(
+        lambda row: '{:+.1f} \u2013 {:+.1f}'.format(
+            row['mean_ending_total_score'] - row ['mean_ending_total_score_sem'],
+            row['mean_ending_total_score'] + row ['mean_ending_total_score_sem'],
+        ) if pd.notna(row['mean_ending_total_score_sem']) else '',
+        axis=1
+    )
+    groups_formatted['ending_percentile_error_range'] = groups_formatted.apply(
+        lambda row: '{:+.1f} \u2013 {:+.1f}'.format(
+            row['mean_ending_percentile'] - row ['mean_ending_percentile_sem'],
+            row['mean_ending_percentile'] + row ['mean_ending_percentile_sem'],
+        ) if pd.notna(row['mean_ending_percentile_sem']) else '',
+        axis=1
+    )
+    groups_formatted['total_score_growth_per_school_year_error_range'] = groups_formatted.apply(
+        lambda row: '{:+.1f} \u2013 {:+.1f}'.format(
+            row['mean_total_score_growth_per_school_year'] - row ['mean_total_score_growth_per_school_year_sem'],
+            row['mean_total_score_growth_per_school_year'] + row ['mean_total_score_growth_per_school_year_sem']
+        ) if pd.notna(row['mean_total_score_growth_per_school_year_sem']) else '',
+        axis=1
+    )
+    groups_formatted['percentile_growth_per_school_year_error_range'] = groups_formatted.apply(
+        lambda row: '{:+.1f} \u2013 {:+.1f}'.format(
+            row['mean_percentile_growth_per_school_year'] - row ['mean_percentile_growth_per_school_year_sem'],
+            row['mean_percentile_growth_per_school_year'] + row ['mean_percentile_growth_per_school_year_sem']
+        ) if pd.notna(row['mean_percentile_growth_per_school_year_sem']) else '',
+        axis=1
+    )
+    groups_formatted['mean_ending_total_score'] = (
+        groups_formatted['mean_ending_total_score']
+        .apply(lambda x: '{:.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_ending_total_score_sem'] = (
+        groups_formatted['mean_ending_total_score_sem']
+        .apply(lambda x: '{:.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_ending_percentile'] = (
+        groups_formatted['mean_ending_percentile']
+        .apply(lambda x: '{:.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_ending_percentile_sem'] = (
+        groups_formatted['mean_ending_percentile_sem']
+        .apply(lambda x: '{:.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_total_score_growth_per_school_year'] = (
+        groups_formatted['mean_total_score_growth_per_school_year']
+        .apply(lambda x: '{:+.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_total_score_growth_per_school_year_sem'] = (
+        groups_formatted['mean_total_score_growth_per_school_year_sem']
+        .apply(lambda x: '{:.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_percentile_growth_per_school_year'] = (
+        groups_formatted['mean_percentile_growth_per_school_year']
+        .apply(lambda x: '{:+.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted['mean_percentile_growth_per_school_year_sem'] = (
+        groups_formatted['mean_percentile_growth_per_school_year_sem']
+        .apply(lambda x: '{:.1f}'.format(x) if pd.notna(x) else '')
+    )
+    groups_formatted = (
+        groups_formatted
+        .reindex(columns=[
+            'num_valid_ending_total_score',
+            'mean_ending_total_score',
+            'mean_ending_total_score_sem',
+            'ending_total_score_error_range',
+            'num_valid_ending_percentile',
+            'mean_ending_percentile',
+            'mean_ending_percentile_sem',
+            'ending_percentile_error_range',
+            'num_valid_total_score_growth',
+            'mean_total_score_growth_per_school_year',
+            'mean_total_score_growth_per_school_year_sem',
+            'total_score_growth_per_school_year_error_range',
+            'num_valid_percentile_growth',
+            'mean_percentile_growth_per_school_year',
+            'mean_percentile_growth_per_school_year_sem',
+            'percentile_growth_per_school_year_error_range',
+        ])
+    )
+    groups_formatted.columns = pd.MultiIndex.from_product([
+        ['Attainment', 'Growth per year'],
+        ['Raw score', 'Percentile'],
+        ['N', 'Avg', 'SEM', 'Error range']
+    ])
+    if index_names is not None:
+        groups_formatted.index.names=index_names
+    return groups_formatted
+
+def format_student_summary(
+    students
+):
+    students_formatted = students.copy()
+    students_formatted['total_score_num_days'] = (
+        students_formatted['total_score_num_days']
+        .apply(lambda x: '{:.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['starting_total_score'] = (
+        students_formatted['starting_total_score']
+        .apply(lambda x: '{:.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['ending_total_score'] = (
+        students_formatted['ending_total_score']
+        .apply(lambda x: '{:.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['total_score_growth'] = (
+        students_formatted['total_score_growth']
+        .apply(lambda x: '{:+.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['total_score_growth_per_school_year'] = (
+        students_formatted['total_score_growth_per_school_year']
+        .apply(lambda x: '{:+.1f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['percentile_num_days'] = (
+        students_formatted['percentile_num_days']
+        .apply(lambda x: '{:.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['starting_percentile'] = (
+        students_formatted['starting_percentile']
+        .apply(lambda x: '{:.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['ending_percentile'] = (
+        students_formatted['ending_percentile']
+        .apply(lambda x: '{:.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['percentile_growth'] = (
+        students_formatted['percentile_growth']
+        .apply(lambda x: '{:+.0f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted['percentile_growth_per_school_year'] = (
+        students_formatted['percentile_growth_per_school_year']
+        .apply(lambda x: '{:+.1f}'.format(x) if pd.notna(x) else '')
+    )
+    students_formatted = (
+        students_formatted
+        .reset_index()
+        .reindex(columns=[
+            'group_name_mefs',
+            'child_id_mefs',
+            'first_name',
+            'last_name',
+            'total_score_starting_date',
+            'total_score_ending_date',
+            'total_score_num_days',
+            'starting_total_score',
+            'ending_total_score',
+            'total_score_growth',
+            'total_score_growth_per_school_year',
+            'percentile_starting_date',
+            'percentile_ending_date',
+            'percentile_num_days',
+            'starting_percentile',
+            'ending_percentile',
+            'percentile_growth',
+            'percentile_growth_per_school_year'
+        ])
+        .sort_values([
+            'group_name_mefs',
+            'last_name',
+        ])
+        .rename(columns={
+            'group_name_mefs': 'MEFS group',
+            'child_id_mefs': 'Student ID',
+            'first_name': 'First name',
+            'last_name': 'Last name',
+            'total_score_starting_date': 'Total score starting date',
+            'total_score_ending_date': 'Total score ending date',
+            'total_score_num_days': 'Total score days between tests',
+            'starting_total_score': 'Starting total score',
+            'ending_total_score': 'Ending total score',
+            'total_score_growth': 'Total score growth',
+            'total_score_growth_per_school_year': 'Total score growth per school year',
+            'percentile_starting_date': 'Percentile starting date',
+            'percentile_ending_date': 'Percentile ending date',
+            'percentile_num_days': 'Percentile days between tests',
+            'starting_percentile': 'Starting percentile',
+            'ending_percentile': 'Ending percentile',
+            'percentile_growth': 'Percentile growth',
+            'percentile_growth_per_school_year': 'Percentile growth per school year',
+        })
+    )
+    return students_formatted
