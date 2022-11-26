@@ -39,8 +39,7 @@ RESULTS_VARIABLES = [
     'percentile'
 ]
 
-DEFAULT_MIN_GROWTH_DAYS = 60
-
+DEFAULT_MIN_GROWTH_DAYS = 120
 DEFAULT_SCHOOL_YEAR_DURATION_MONTHS = 9
 
 DEFAULT_ROLLOVER_MONTH = 7
@@ -304,7 +303,15 @@ def summarize_by_student(
         students['starting_total_score']
     )
     students.loc[students['total_score_num_days'] < min_growth_days, 'total_score_growth'] = np.nan
-    students['total_score_growth_per_school_year'] = 365.25*(school_year_duration_months/12)*students['total_score_growth']/students['total_score_num_days']
+    students['total_score_growth_per_school_year'] = students.apply(
+        lambda row: wf_core_data.utils.calculate_score_growth_per_school_year(
+            score_growth=row['total_score_growth'],
+            days_between_tests=row['total_score_num_days'],
+            min_growth_days=min_growth_days,
+            school_year_duration_months=school_year_duration_months
+        ),
+        axis=1
+    )
     students['percentile_num_days'] = (
         np.subtract(
             students['percentile_ending_date'],
@@ -317,7 +324,16 @@ def summarize_by_student(
         students['starting_percentile']
     )
     students.loc[students['percentile_num_days'] < min_growth_days, 'percentile_growth'] = np.nan
-    students['percentile_growth_per_school_year'] = 365.25*(school_year_duration_months/12)*students['percentile_growth']/students['percentile_num_days']
+    students['percentile_growth_per_school_year'] = students.apply(
+        lambda row: wf_core_data.utils.calculate_percentile_growth_per_school_year(
+            starting_percentile=row['starting_percentile'],
+            ending_percentile=row['ending_percentile'],
+            days_between_tests=row['percentile_num_days'],
+            min_growth_days=min_growth_days,
+            school_year_duration_months=school_year_duration_months
+        ),
+        axis=1
+    )
     students = students.join(
         student_info,
         how='left',
